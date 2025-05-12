@@ -114,7 +114,6 @@
           <div class="log-in-start">
             <a class="log-out-1" href="index.html">Main Page</a>
           </div>
-         
         </div>
       </div>
       
@@ -261,34 +260,45 @@
 
       // Обработка нажатия кнопки Get result
       document.getElementById('getResultBtn').addEventListener('click', async function() {
-        const skipsNumber = document.getElementById('gapsNumber').value || 0;
+        const gapsNumber = document.getElementById('gapsNumber').value || 0;
         const sourceCode = editor.getValue();
         
         // Формируем JSON
         const requestData = {
-          skipsNumber: parseInt(skipsNumber),
+          skipsNumber: parseInt(gapsNumber),
           sourceCode: sourceCode
         };
         
+        console.log('Отправляемые данные:', JSON.stringify(requestData, null, 2));
+        
         try {
           // Отправляем POST-запрос
-          const response = await fetch('http://localhost:8082/skips/generate', {
+          const response = await fetch('http://176.108.249.153:8082/api/v1/skips/generate', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
             },
             body: JSON.stringify(requestData)
           });
           
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
           }
           
-          const result = await response.text();
-          resultEditor.setValue(result);
+          const result = await response.json();
+          console.log('Полученный результат:', result);
+          
+          // Отображаем результат в редакторе
+          if (result && typeof result === 'object') {
+            resultEditor.setValue(JSON.stringify(result, null, 2));
+          } else {
+            resultEditor.setValue(result);
+          }
         } catch (error) {
           console.error('Error:', error);
-          resultEditor.setValue(`Error: ${error.message}`);
+          resultEditor.setValue(`Error: ${error.message}\n\nПроверьте:\n1. Корректность введенных данных\n2. Доступность сервера\n3. Консоль для подробной информации`);
         }
       });
     </script>
