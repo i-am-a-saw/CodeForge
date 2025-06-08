@@ -323,7 +323,7 @@
             }
 
             const postResult = await postResponse.json();
-            const alias = postResult.alias;
+            const alias = postResult.taskAlias;
 
             if (!alias) {
               throw new Error('No alias received in POST response');
