@@ -189,6 +189,12 @@ textarea {
 }
 
 .main-container {
+  position: relative;
+  width: 100%;
+  max-width: 1920px;
+  height: 1797px;
+  margin: 0 auto;
+  background: #ffffff;
   overflow: hidden;
 }
 
@@ -216,38 +222,50 @@ button {
 .flex-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   position: relative;
-  width: 1378px;
+  width: 100%;
   height: 55px;
-  margin: 45px 0 0 277px;
+  margin: 45px 0 0 0;
   z-index: 5;
+  justify-content: center; /* Центрируем все содержимое */
 }
 
 .code-genius {
-  flex-shrink: 0;
-  position: relative;
+  position: absolute;
+  left: 277px;
   height: 55px;
   color: #4f46e5;
   font-family: Friska, var(--default-font-family);
   font-size: 30px;
   font-weight: 400;
   line-height: 55px;
-  text-align: left;
   white-space: nowrap;
   letter-spacing: 1.8px;
   z-index: 1;
+  width: 10px;
 }
 
 .menu {
   display: flex;
   align-items: center;
-  flex-wrap: nowrap;
-  flex-shrink: 0;
   gap: 45px;
   position: relative;
-  width: 700px;
   z-index: 2;
+}
+
+.menu a {
+  color: #6f6a6a;
+  font-family: Friska, var(--default-font-family);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 55px;
+  white-space: nowrap;
+  letter-spacing: 1.32px;
+  text-decoration: none;
+}
+
+.menu a.remove-noises {
+  text-decoration: underline;
 }
 
 .contribute-a-problem {
@@ -285,14 +303,11 @@ button {
 }
 
 .log-out {
+  position: absolute;
+  right: 277px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-wrap: nowrap;
-  flex-shrink: 0;
   gap: 20px;
-  position: relative;
-  width: 200px;
   z-index: 5;
 }
 
@@ -359,8 +374,8 @@ button {
 }
 
 .code-editor, .result-editor {
-  height: calc(100vh - 350px);
-  max-height: 800px;
+  max-height: 1000px;
+  min-height: 1000px;
   width: 800px;
   border: 1px solid #a5a5a5;
   position: relative;
@@ -408,11 +423,15 @@ button {
   position: relative;
   width: 1920px;
   height: 457px;
-  margin: 49px 0 0 0;
+  margin: 9px 0 0 0;
   font-size: 0px;
   background: #4f46e5;
   z-index: 18;
   overflow: hidden;
+  margin-top: 49px;
+  padding-top: 70px;
+  background: #4f46e5;
+  font-family: Friska, var(--default-font-family);
 }
 
 .remove-noises {
@@ -430,6 +449,13 @@ button {
   letter-spacing: 1.32px;
   z-index: 3;
   text-decoration: underline;
+}
+
+.fill-in-the-gaps {
+  margin: 9px 0 0 673px;
+  font-size: 30px;
+  line-height: 55px;
+  color: white;
 }
 
 .identify-remove-code {
@@ -456,7 +482,7 @@ button {
   position: relative;
   width: 574px;
   height: 83px;
-  margin: 63px 0 0 673px;
+  margin: 10px 0 0 673px;
   color: #ffffff;
   font-family: Friska, var(--default-font-family);
   font-size: 28px;
@@ -464,4 +490,5 @@ button {
   line-height: 55px;
   text-align: left;
   z-index: 21;
+  text-decoration: none;
 }

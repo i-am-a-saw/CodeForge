@@ -248,6 +248,7 @@ button {
   position: relative;
   width: 700px;
   z-index: 2;
+  margin-left: 110px;
 }
 
 .contribute-a-problem {
@@ -324,6 +325,7 @@ button {
   letter-spacing: 1.32px;
   z-index: 7;
   text-decoration: none;
+
 }
 
 .user-px {
@@ -360,8 +362,9 @@ button {
 }
 
 .code-editor, .result-editor {
-  height: calc(100vh - 350px);
-  max-height: 800px;
+  
+  max-height: 1000px;
+  min-height: 1000px;
   width: 800px;
   border: 1px solid #a5a5a5;
   position: relative;
@@ -420,7 +423,7 @@ button {
   display: block;
   position: relative;
   height: 55px;
-  margin: 99px 0 0 673px;
+  margin: 63px 0 0 673px;
   color: #ffffff;
   font-family: Friska, var(--default-font-family);
   font-size: 30px;
@@ -436,7 +439,7 @@ button {
   align-items: flex-start;
   justify-content: flex-start;
   position: relative;
-  width: 574px;
+  width: 774px;
   height: 110px;
   margin: 0 0 0 673px;
   color: #ffffff;
@@ -455,7 +458,7 @@ button {
   position: relative;
   width: 574px;
   height: 83px;
-  margin: 63px 0 0 673px;
+  margin: 1px 0 0 673px;
   color: #ffffff;
   font-family: Friska, var(--default-font-family);
   font-size: 28px;
@@ -463,4 +466,5 @@ button {
   line-height: 55px;
   text-align: left;
   z-index: 21;
+  text-decoration: none;
 }
