@@ -276,7 +276,8 @@
           const result = await response.json();
           
           if (result.status === 'Done') {
-            resultEditor.setValue(result.result || 'No result provided');
+            const newString = result.result.replace(/\uD83D\uDD11/gi, '___');
+            resultEditor.setValue(newString || 'No result provided');
             return true;
           }
           
