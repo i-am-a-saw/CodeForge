@@ -1,236 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CodeGenius</title>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Friska:wght@400&display=swap"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/eclipse.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css"
-    />
-    <link rel="stylesheet" href="solve.css" />
-  </head>
-  <body>
-    <div class="main-container">
-      <div class="flex-row">
-        <span class="code-genius">CODULAR</span>
-        <div class="menu">
-          <a class="menu-item" href="contrib-gaps.html">Fill in the gaps</a>
-          <a class="menu-item" href="remove-noices.html">Remove noises</a>
-          <a class="menu-item" href="#">Solve problems</a>
-          <a class="log-out-1" href="index.html">Main Page</a>
-        </div>
-      </div>
-
-      <div class="centered-title">
-        <span class="solving-problem">Solving problems</span>
-      </div>
-
-      <!-- Строка с контролами -->
-      <div class="controls-row">
-        <div class="control-group">
-          <span class="control-label">Problem type:</span>
-          <select id="problemType" class="control-input problem-type-selector">
-            <option value="gaps">Gaps</option>
-            <option value="noises">Noises</option>
-          </select>
-        </div>
-
-        <div class="control-group">
-          <span class="control-label">Topic:</span>
-          <select id="topic" class="control-input topic-selector">
-            <option value="arrays">Arrays</option>
-            <option value="strings">Strings</option>
-            <option value="algorithms">Algorithms</option>
-            <option value="data-structures">Data Structures</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Кнопки Check и Get a problem -->
-      <div class="buttons-container">
-        <button id="getProblemBtn" class="get-problem-btn">
-          Get a problem
-        </button>
-        <button id="checkBtn" class="check-btn">Check</button>
-        <div id="resultMessage" class="hidden"></div>
-      </div>
-
-      <!-- Контейнер редакторов -->
-      <div class="editors-container">
-        <!-- Заголовки редакторов -->
-        <div class="editors-titles">
-          <span class="task-title">Task</span>
-          <span class="answer-title">Answer</span>
-        </div>
-
-        <!-- Редакторы кода -->
-        <div class="editors-row">
-          <div class="code-editor" id="divCodeWrapper">
-            <textarea id="codeEditor"></textarea>
-          </div>
-
-          <div class="answer-editor">
-            <textarea id="answerEditor"></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div class="frame">
-        <div class="flex-row-cb">
-          <span class="fill-in-gaps">Fill in the gaps problems</span
-          ><span class="remove-noises">Remove noises problems</span>
-        </div>
-        <div class="flex-row-3">
-          <span class="practice-missing-code"
-            >Users can practice filling in missing code elements</span
-          ><span class="practice-identifying-removing"
-            >Users can practice identifying and removing extra code lines</span
-          >
-        </div>
-        <div class="flex-row-fb">
-          <a class="try-now" href="contrib-gaps.html">Try now →</a
-          ><a class="try-now-4" href="remove-noices.html">Try now →</a>
-        </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CODULAR</title>
+  <link rel="stylesheet" href="solve.css">
+</head>
+<body>
+  <div class="main-container">
+    <div class="flex-row">
+      <span class="code-genius">CODULAR</span>
+      <div class="menu">
+        <a href="#" class="menu-item">Fill in the gaps</a>
+        <a href="#" class="menu-item remove-noises">Remove noises</a>
+        <a href="#" class="menu-item">Solve problems</a>
+        <a href="#" class="log-out-1">Main Page</a>
       </div>
     </div>
 
-    <!-- Подключаем необходимые скрипты CodeMirror -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/anyword-hint.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/hint/show-hint.min.css"
-    />
+    <div class="centered-title">
+      <span class="solving-problem">Solving problems</span>
+    </div>
 
-    <script>
-      // Инициализация редакторов
-      const editor = CodeMirror.fromTextArea(
-        document.getElementById('codeEditor'),
-        {
-          lineNumbers: true,
-          matchBrackets: true,
-          autoCloseBrackets: true,
-          theme: 'default',
-          mode: 'text/x-c++src',
-          indentUnit: 4,
-          tabSize: 4,
-          readOnly: true,
-        }
-      );
+    <div class="controls-row">
+      <div class="control-group">
+        <label class="control-label">Task alias:</label>
+        <input type="text" class="control-input problem-type-selector" placeholder="Task alias">
+        <button class="get-problem-btn">Get task</button>
+      </div>
+    </div>
 
-      const answerEditor = CodeMirror.fromTextArea(
-        document.getElementById('answerEditor'),
-        {
-          lineNumbers: true,
-          matchBrackets: true,
-          autoCloseBrackets: true,
-          theme: 'default',
-          mode: 'text/x-c++src',
-          indentUnit: 4,
-          tabSize: 4,
-        }
-      );
+    <div class="editors-container">
+      <div class="editors-titles">
+        <span class="task-title">Task</span>
+        <span class="answer-title">Answer</span>
+      </div>
+      <div class="editors-row">
+        <div class="code-editor"></div>
+        <div class="answer-editor"></div>
+      </div>
+    </div>
 
-      // Обработка нажатия кнопки Check
-      document
-        .getElementById('checkBtn')
-        .addEventListener('click', async function () {
-          const taskId = 1; // Здесь должен быть реальный ID задачи
-          const sourceCode = editor.getValue();
+    <div class="buttons-container">
+      <button class="get-problem-btn">Get a problem</button>
+      <button class="check-btn">Check</button>
+    </div>
 
-          const requestData = {
-            TaskID: taskId,
-            sourceCode: sourceCode,
-          };
-
-          try {
-            const response = await fetch('http://localhost:8082/skips/check', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
-
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            answerEditor.setValue(result.answer);
-
-            // Проверяем ответ пользователя
-            const userAnswer = editor.getValue();
-            const resultMessage = document.getElementById('resultMessage');
-
-            if (userAnswer === result.answer) {
-              resultMessage.textContent = 'Success! Your answer is correct.';
-              resultMessage.className = 'success-message';
-            } else {
-              resultMessage.textContent =
-                "Try again. Your answer doesn't match the expected solution.";
-              resultMessage.className = 'error-message';
-            }
-            resultMessage.classList.remove('hidden');
-          } catch (error) {
-            console.error('Error:', error);
-            answerEditor.setValue(`Error: ${error.message}`);
-          }
-        });
-
-      // Обработка нажатия кнопки Get a problem
-      document
-        .getElementById('getProblemBtn')
-        .addEventListener('click', async function () {
-          try {
-            const response = await fetch(
-              'http://176.108.249.153:8082/api/v1/tasks/pyH5uugqFj',
-              {
-                method: 'GET',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              }
-            );
-
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const problem = await response.json();
-            editor.setValue(problem.task);
-            answerEditor.setValue(''); // Очищаем поле ответа
-          } catch (error) {
-            console.error('Error:', error);
-            // Не выводим никаких сообщений об ошибке
-          }
-        });
-    </script>
-  </body>
+    <div class="frame">
+      <span class="fill-in-gaps">Fill in the gaps problems</span>
+      <span class="practice-missing-code">Users can practice filling in missing code elements</span>
+      <a href="#" class="try-now">Try now →</a>
+      <div class="flex-row-cb">
+        <span class="remove-noises">Remove noises problems</span>
+        <span class="practice-identifying-removing">Users can practice identifying and removing extra code lines</span>
+      </div>
+      <a href="#" class="try-now-4">Try now →</a>
+    </div>
+  </div>
+</body>
 </html>
