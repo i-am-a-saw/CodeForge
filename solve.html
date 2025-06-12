@@ -242,6 +242,8 @@
               throw new Error(`HTTP error! status: ${response.status}`);
             }
 
+
+            // EDITED VERSION
             const result = await response.json();
             alert('Got 2');
             if (result.status === 'Done') {
