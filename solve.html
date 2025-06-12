@@ -244,8 +244,10 @@
             const result = await response.json();
 
             if (result.status === 'Done') {
+              // обязательное изменение поля
               document.getElementById('codeEditor').value =
                 result.result || '';
+              // доп проверка
             }
           } catch (error) {
             console.error('Polling error:', error);
