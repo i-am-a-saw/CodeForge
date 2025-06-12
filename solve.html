@@ -247,7 +247,7 @@
             if (result.status === 'Done') {
               alert('Got 3');
               // обязательное изменение поля
-              document.getElementById('codeEditor').setValue(result.result || 'No result provided');
+              editor.setValue(result.result || 'No result provided');
               // доп проверка
               alert('Got 4');
             }
