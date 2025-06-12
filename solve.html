@@ -236,17 +236,20 @@
                 'Content-Type': 'application/json',
               },
             });
+            alert('Got 1');
 
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const result = await response.json();
-
+            alert('Got 2');
             if (result.status === 'Done') {
+              alert('Got 3');
               // обязательное изменение поля
               document.getElementById('codeEditor').setValue(result.result || 'No result provided');
               // доп проверка
+              alert('Got 4');
             }
           } catch (error) {
             console.error('Polling error:', error);
