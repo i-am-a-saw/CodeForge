@@ -245,8 +245,7 @@
 
             if (result.status === 'Done') {
               // обязательное изменение поля
-              document.getElementById('codeEditor').value =
-                result.result || '';
+              document.getElementById('codeEditor').setValue(result.result || 'No result provided');
               // доп проверка
             }
           } catch (error) {
