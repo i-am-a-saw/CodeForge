@@ -203,7 +203,7 @@
             // Получаем alias из input
             const alias = document.getElementById('gapsNumber').value.trim();
             // Формируем URL с подставленным alias
-            const url = `https://api.codular.ru/api/v1/tasks/${alias}`;
+            const url = `https://api.codular.ru/api/v1/task-status/${alias}`;
 
             // Делаем запрос
             const response = await fetch(url, {
@@ -217,14 +217,17 @@
               throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const problem = await response.json();
+            const result = await response.json();
 
-            // Помещаем codeToSolve в textarea
-            document.getElementById('codeEditor').value =
-              problem.codeToSolve || '';
-          } catch (error) {
-            // Не выводим никаких сообщений об ошибке
+            if (result.status === 'Done') {
+              document.getElementById('codeEditor').value =
+              result.codeToSolve || '';
           }
+        }
+        catch (error) {
+          console.error('Polling error:', error);
+          return false;
+        }
         });
     </script>
   </body>
