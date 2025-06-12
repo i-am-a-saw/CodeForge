@@ -245,7 +245,7 @@
 
             if (result.status === 'Done') {
               document.getElementById('codeEditor').value =
-                result.codeToSolve || '';
+                result.result || '';
             }
           } catch (error) {
             console.error('Polling error:', error);
