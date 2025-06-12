@@ -152,46 +152,70 @@
       document
         .getElementById('checkBtn')
         .addEventListener('click', async function () {
-          const taskId = 1; // Здесь должен быть реальный ID задачи
-          const sourceCode = editor.getValue();
-
-          const requestData = {
-            TaskID: taskId,
-            sourceCode: sourceCode,
-          };
-
           try {
-            const response = await fetch('http://localhost:8082/skips/check', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestData),
-            });
+            // Получаем значения из полей
+            const answer =
+              typeof answerEditor === 'object' && answerEditor.getValue
+                ? answerEditor.getValue()
+                : document.getElementById('answerEditor')?.value || '';
+
+            const taskAlias = document
+              .getElementById('gapsNumber')
+              .value.trim();
+
+            // Формируем JSON для отправки
+            const data = {
+              answers: [answer],
+              taskAlias: taskAlias,
+            };
+
+            // Отправляем POST-запрос
+            const response = await fetch(
+              'https://api.codular.ru/api/v1/skips/solve',
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+              }
+            );
 
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const result = await response.json();
-            answerEditor.setValue(result.answer);
+            const submissionId = result.submissionId;
 
-            // Проверяем ответ пользователя
-            const userAnswer = editor.getValue();
-            const resultMessage = document.getElementById('resultMessage');
+            // Ждём 3 секунды
+            await new Promise((resolve) => setTimeout(resolve, 3000));
 
-            if (userAnswer === result.answer) {
-              resultMessage.textContent = 'Success! Your answer is correct.';
-              resultMessage.className = 'success-message';
-            } else {
-              resultMessage.textContent =
-                "Try again. Your answer doesn't match the expected solution.";
-              resultMessage.className = 'error-message';
+            // Проверяем статус по submissionId
+            const statusResponse = await fetch(
+              `https://api.codular.ru/api/v1/submission-status/${submissionId}`,
+              {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+
+            if (!statusResponse.ok) {
+              throw new Error(`HTTP error! status: ${statusResponse.status}`);
             }
-            resultMessage.classList.remove('hidden');
+
+            const statusResult = await statusResponse.json();
+
+            // Выводим сообщение в зависимости от результата
+            if (statusResult.IsCorrect === 'Failed') {
+              alert('Ошибка в выполнении задания.');
+            } else if (statusResult.IsCorrect === 'Success') {
+              alert('Задание успешно выполнено!');
+            }
           } catch (error) {
-            console.error('Error:', error);
-            answerEditor.setValue(`Error: ${error.message}`);
+            alert('Произошла ошибка при проверке задания.');
           }
         });
 
@@ -221,13 +245,12 @@
 
             if (result.status === 'Done') {
               document.getElementById('codeEditor').value =
-              result.result || '';
+                result.codeToSolve || '';
+            }
+          } catch (error) {
+            console.error('Polling error:', error);
+            return false;
           }
-        }
-        catch (error) {
-          console.error('Polling error:', error);
-          return false;
-        }
         });
     </script>
   </body>
