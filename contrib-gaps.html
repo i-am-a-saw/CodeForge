@@ -26,7 +26,7 @@
         width: 100%;
         background: white;
       }
-      
+
       /* Скрываем оригинальные элементы */
       #textarea1, #preCode {
         display: none;
@@ -116,7 +116,7 @@
           </div>
         </div>
       </div>
-      
+
       <span class="generating-problem">Generating a problem: Filling the gaps</span>
 
       <!-- Строка с контролами (Language, Theme, Number of gaps) -->
@@ -129,7 +129,7 @@
             <option value="text/x-python">Python</option>
           </select>
         </div>
-        
+
         <div class="control-group">
           <span class="control-label">Theme:</span>
           <select id="selectTheme" class="control-input theme-selector">
@@ -140,7 +140,7 @@
             <option value="monokai">Monokai</option>
           </select>
         </div>
-        
+
         <div class="control-group">
           <span class="control-label">Number of gaps:</span>
           <input type="text" class="control-input gaps-number" id="gapsNumber" />
@@ -165,13 +165,13 @@
           <div class="code-editor" id="divCodeWrapper">
             <textarea id="codeEditor"></textarea>
           </div>
-          
+
           <div class="result-editor">
             <textarea id="resultEditor"></textarea>
           </div>
         </div>
       </div>
-      
+
       <div class="frame">
         <span class="remove-noises">Remove noises problems</span>
         <span class="identify-remove-code">
@@ -208,7 +208,7 @@
           }
         }
       });
-      
+
       // Инициализация редактора результата
       const resultEditor = CodeMirror.fromTextArea(document.getElementById('resultEditor'), {
         lineNumbers: true,
@@ -226,29 +226,29 @@
         'text/x-java': `public class Main {\n    public static void main(String[] args) {\n        // Your code here\n        System.out.println("Hello, World!");\n    }\n}`,
         'text/x-python': `# Your code here\ndef main():\n    print("Hello, World!")\n\nif __name__ == "__main__":\n    main()`
       };
-      
+
       // Установка примера кода при загрузке
       editor.setValue(codeExamples['text/x-c++src']);
-      
+
       // Обработка изменения языка
       document.getElementById('selectLanguage').addEventListener('change', function() {
         const mode = this.value;
         editor.setOption('mode', mode);
         resultEditor.setOption('mode', mode);
-        
+
         // Устанавливаем соответствующий пример кода
         if (codeExamples[mode]) {
           editor.setValue(codeExamples[mode]);
         }
       });
-      
+
       // Обработка изменения темы
       document.getElementById('selectTheme').addEventListener('change', function() {
         const theme = this.value;
         editor.setOption('theme', theme);
         resultEditor.setOption('theme', theme);
       });
-      
+
       // Настройка автодополнения
       editor.on('inputRead', function(cm, input) {
         if (input.text && input.text[0] && /^[a-zA-Z]$/.test(input.text[0])) {
@@ -262,15 +262,15 @@
       document.getElementById('getResultBtn').addEventListener('click', async function() {
         const gapsNumber = document.getElementById('gapsNumber').value || 0;
         const sourceCode = editor.getValue();
-        
+
         // Формируем JSON
         const requestData = {
           skipsNumber: parseInt(gapsNumber),
           sourceCode: sourceCode
         };
-        
+
         console.log('Отправляемые данные:', JSON.stringify(requestData, null, 2));
-        
+
         try {
           // Отправляем POST-запрос
           const response = await fetch('http://176.108.249.153:8082/api/v1/skips/generate', {
@@ -281,15 +281,15 @@
             },
             body: JSON.stringify(requestData)
           });
-          
+
           if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
           }
-          
+
           const result = await response.json();
           console.log('Полученный результат:', result);
-          
+
           // Отображаем результат в редакторе
           if (result && typeof result === 'object') {
             resultEditor.setValue(JSON.stringify(result, null, 2));
