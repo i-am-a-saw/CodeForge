@@ -52,16 +52,8 @@ export const useAuthStore = defineStore('auth', {
             this.isAuthenticated = false // Устанавливаем в false при сбросе
         },
 
-        // Инициализация состояния Pinia при запуске приложения
-        // Загружаем токен из localStorage и устанавливаем isAuthenticated
         initialize() {
-            // Pinia Persisted State должен загрузить accessToken из localStorage.
-            // Если он загружен, устанавливаем isAuthenticated.
-            if (this.accessToken) {
-                this.isAuthenticated = true
-            } else {
-                this.isAuthenticated = false
-            }
+            this.isAuthenticated = !!this.accessToken
         }
     },
 

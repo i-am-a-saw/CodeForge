@@ -7,9 +7,15 @@
         <a class="solve-problems" href="#" @click.prevent="navigateTo('/remove-noices')">Remove noices</a>
         <a class="solve-problems" href="#" @click.prevent="navigateTo('/solve')">Solve problems</a>
       </div>
+
       <div class="log-in-start">
-        <a class="log-in" href="#" @click.prevent="navigateToLogin()">Log in</a>
-        <a class="get-started" href="#" @click.prevent="navigateToRegister()">Register</a>
+        <template v-if="!authStore.isAuthenticated">
+          <a class="log-in" href="#" @click.prevent="navigateToLogin()">Log in</a>
+          <a class="get-started" href="#" @click.prevent="navigateToRegister()">Register</a>
+        </template>
+        <template v-else>
+          <UserProfile />
+        </template>
       </div>
     </div>
   </div>
@@ -17,31 +23,29 @@
 
 <script setup>
 import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from './src/stores/auth' // Импорт Pinia store
+import UserProfile from './UserProfile.vue' // Импорт нового компонента профиля
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore() // Инициализация store
 
 const navigateTo = (path) => {
-  // Простая навигация, если путь не текущий, или если это корневой путь
   if (route.path !== path || path === '/') {
     router.push(path)
   }
 }
 
 const navigateToLogin = () => {
-  // Если мы уже на /login и НЕ в режиме регистрации, то ничего не делаем.
-  // Иначе, переходим на /login без параметра register.
   if (route.path === '/login' && !route.query.register) {
-    return; // Уже на странице логина, не в режиме регистрации
+    return
   }
-  router.push({ path: '/login', query: {} }) // Пустой query, чтобы сбросить 'register'
+  router.push({ path: '/login', query: {} })
 }
 
 const navigateToRegister = () => {
-  // Если мы уже на /login И в режиме регистрации, то ничего не делаем.
-  // Иначе, переходим на /login с параметром register.
   if (route.path === '/login' && route.query.register === 'true') {
-    return; // Уже на странице регистрации
+    return
   }
   router.push({ path: '/login', query: { register: 'true' } })
 }
@@ -49,11 +53,11 @@ const navigateToRegister = () => {
 
 <style>
 /* Скопируйте сюда стили из вашего styles.css, относящиеся к шапке.
-   Это те стили, которые были в предыдущем рабочем состоянии. */
+   Эти стили не менялись с предыдущего шага. */
 
 .header-outer-wrapper {
   position: relative;
-  width: 1820px; /* Убедитесь, что это соответствует ширине вашего макета */
+  width: 1820px;
   margin: 0 auto;
 }
 
@@ -63,12 +67,12 @@ const navigateToRegister = () => {
   height: 65px;
   margin: 40px 0 0 277px;
   z-index: 5;
-  display: flex; /* Используем flexbox для расположения элементов */
+  display: flex;
   align-items: center;
 }
 
-.code-genius { /* Сделаем его кликабельным */
-  cursor: pointer; /* Добавим курсор для указания на кликабельность */
+.code-genius {
+  cursor: pointer;
   position: absolute;
   height: 55px;
   top: 5px;
@@ -89,14 +93,15 @@ const navigateToRegister = () => {
   align-items: center;
   flex-wrap: nowrap;
   gap: 45px;
-  position: absolute; /* Сохраняем абсолютное позиционирование, как в styles.css */
+  position: absolute;
   height: 55px;
   top: 5px;
-  left: 310px; /* Позиция из styles.css */
+  left: 310px;
   z-index: 2;
 }
 
-.contribute-problem, .solve-problems {
+.contribute-problem,
+.solve-problems {
   flex-shrink: 0;
   flex-basis: auto;
   position: relative;
@@ -118,11 +123,11 @@ const navigateToRegister = () => {
   align-items: center;
   flex-wrap: nowrap;
   gap: 42px;
-  position: absolute; /* Сохраняем абсолютное позиционирование, как в styles.css */
-  width: 320px;
+  position: absolute;
+  width: 320px; /* Здесь может потребоваться регулировка ширины, если UserProfile занимает другое место */
   height: 65px;
   top: 0;
-  left: 1117px; /* Позиция из styles.css */
+  left: 1117px;
   z-index: 5;
 }
 
@@ -143,7 +148,7 @@ const navigateToRegister = () => {
   z-index: 6;
 }
 
-.get-started { /* Этот класс для кнопки Register */
+.get-started {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -167,8 +172,6 @@ const navigateToRegister = () => {
   z-index: 8;
 }
 
-/* Убедитесь, что переменная --default-font-family определена,
-   например, в вашем styles.css или в этом же блоке style. */
 :root {
   --default-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Ubuntu, 'Helvetica Neue', Helvetica, Arial, 'PingFang SC',
