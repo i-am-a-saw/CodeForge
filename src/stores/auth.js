@@ -1,86 +1,69 @@
+// src/stores/auth.js
 import { defineStore } from 'pinia'
-import authApi from '@/api/auth'
+import authApi from '../api/auth'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         accessToken: null,
         user: null,
-        isAuthenticated: false
+        isAuthenticated: false // Вернули как реактивное свойство
     }),
 
     actions: {
         async login(credentials) {
-            try {
-                const response = await authApi.login(credentials)
-                this.accessToken = response.access_token
-                this.isAuthenticated = true
-                // Можно добавить загрузку данных пользователя
-                // await this.fetchUser()
-                return response
-            } catch (error) {
-                this.reset()
-                throw error
-            }
+            const response = await authApi.login(credentials)
+            this.accessToken = response.access_token
+            this.isAuthenticated = true // Устанавливаем в true при логине
+            // this.user = response.user_data; // Если получаете данные пользователя
         },
 
         async register(userData) {
-            try {
-                const response = await authApi.register(userData)
-                this.accessToken = response.access_token
-                this.isAuthenticated = true
-                return response
-            } catch (error) {
-                this.reset()
-                throw error
-            }
+            const response = await authApi.register(userData)
+            this.accessToken = response.access_token
+            this.isAuthenticated = true // Устанавливаем в true при регистрации
+            // this.user = response.user_data;
         },
 
         async refreshToken() {
             try {
                 const response = await authApi.refresh()
                 this.accessToken = response.access_token
-                this.isAuthenticated = true
-                return response
+                this.isAuthenticated = true // Устанавливаем в true при успешном refresh
             } catch (error) {
-                this.reset()
+                console.error("Failed to refresh token:", error)
+                this.reset() // Сбрасываем авторизацию, если refresh не удался
                 throw error
             }
         },
 
         async logout() {
             try {
-                await authApi.logout()
+                await authApi.logout() // Отправляем запрос на бэк
+            } catch (error) {
+                console.error("Logout failed on backend:", error);
             } finally {
-                this.reset()
+                this.reset(); // Сбрасываем состояние Pinia
             }
         },
 
         reset() {
             this.accessToken = null
             this.user = null
-            this.isAuthenticated = false
+            this.isAuthenticated = false // Устанавливаем в false при сбросе
         },
 
-        async fetchUser() {
-            try {
-                this.user = await authApi.getUserProfile()
-            } catch (error) {
-                this.user = null
-                throw error
-            }
-        },
-
-        async initialize() {
-            if (this.accessToken) return
-
-            try {
-                await this.refreshToken()
-                await this.fetchUser()
-            } catch (error) {
-                this.reset()
+        // Инициализация состояния Pinia при запуске приложения
+        // Загружаем токен из localStorage и устанавливаем isAuthenticated
+        initialize() {
+            // Pinia Persisted State должен загрузить accessToken из localStorage.
+            // Если он загружен, устанавливаем isAuthenticated.
+            if (this.accessToken) {
+                this.isAuthenticated = true
+            } else {
+                this.isAuthenticated = false
             }
         }
     },
 
-    persist: true // Для сохранения состояния при перезагрузке страницы
+    persist: true
 })

@@ -1,0 +1,38 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import HomePage from '../../HomePage.vue'
+import Test from '../../test.vue'
+import LoginForm from '../../LoginForm.vue'
+import { useAuthStore } from '../stores/auth'
+
+const routes = [
+  { path: '/', component: HomePage },
+  { path: '/login', component: LoginForm },
+  { path: '/start', component: HomePage },
+  { path: '/fill-gaps', component: Test },
+  { path: '/remove-noices', component: Test },
+  { path: '/solve', component: Test },
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+})
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+
+  // 1. Проверяем, если маршрут требует авторизации И пользователь не авторизован
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next('/login') // Перенаправляем на страницу логина
+  }
+  // 2. Если пользователь авторизован и пытается перейти на страницу логина/регистрации
+  else if (to.path === '/login' && authStore.isAuthenticated) {
+    next('/') // Перенаправляем на главную страницу (или на защищенную страницу по умолчанию)
+  }
+  // 3. Во всех остальных случаях (публичные страницы, или защищенные страницы для авторизованных)
+  else {
+    next() // Разрешаем переход
+  }
+})
+
+export default router
