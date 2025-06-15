@@ -4,6 +4,7 @@ import Test from '../../test.vue'
 import LoginForm from '../../LoginForm.vue'
 import FillGapsGenerator from '../../FillGapsGenerator.vue' // Импортируем новый компонент
 import { useAuthStore } from '../stores/auth'
+import AliasPage from "../../AliasPage.vue";
 
 const routes = [
   { path: '/', component: HomePage },
@@ -11,7 +12,8 @@ const routes = [
   { path: '/start', component: HomePage },
   { path: '/fill-gaps', component: FillGapsGenerator, meta: { requiresAuth: true } }, 
   { path: '/remove-noices', component: Test, meta: { requiresAuth: true } }, 
-  { path: '/solve', component: Test, meta: { requiresAuth: true } }, 
+  { path: '/solve', component: Test, meta: { requiresAuth: true } },
+  { path: '/task/:id', component: AliasPage, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({

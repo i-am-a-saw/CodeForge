@@ -9,11 +9,11 @@
         <div class="control-group">
           <label for="language" class="label-text">Язык</label>
           <select id="language" v-model="selectedLanguage" class="select-field">
-            <option value="javascript">JavaScript</option>
-            <option value="python">Python</option>
-            <option value="java">Java</option>
-            <option value="csharp">C#</option>
-            <option value="cpp">C++</option>
+            <option value="JavaScript">JavaScript</option>
+            <option value="Python">Python</option>
+            <option value="Java">Java</option>
+            <option value="Csharp">C#</option>
+            <option value="Cpp">C++</option>
           </select>
         </div>
         <button class="generate-button" @click="generateGaps" :disabled="isLoading">
@@ -42,7 +42,9 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from './src/stores/auth' // Убедитесь, что путь правильный
-import UserProfile from './UserProfile.vue' // Убедитесь, что путь правильный
+import UserProfile from './UserProfile.vue'
+import AliasPage from "./AliasPage.vue";
+import {useTaskStore} from "./src/stores/task"; // Убедитесь, что путь правильный
 
 // CodeMirror imports (мы будем загружать их динамически, чтобы не засорять глобальную область)
 // import CodeMirror from 'codemirror';
@@ -57,6 +59,7 @@ import UserProfile from './UserProfile.vue' // Убедитесь, что пут
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const useStore = useTaskStore()
 
 const gapsNumber = ref(1)
 const selectedLanguage = ref('javascript')
@@ -144,52 +147,99 @@ onBeforeUnmount(() => {
 })
 
 const generateGaps = async () => {
-  error.value = ''
-  isLoading.value = true
+  error.value = '';
+  isLoading.value = true;
 
-  const sourceCode = editorInstance ? editorInstance.getValue() : ''
+  const sourceCode = editorInstance ? editorInstance.getValue() : '';
 
   const requestData = {
+    programmingLanguage: selectedLanguage.value,
     skipsNumber: gapsNumber.value,
     sourceCode: sourceCode,
-    language: selectedLanguage.value, // Добавляем язык
-  }
+  };
 
-  console.log('Отправляемые данные:', JSON.stringify(requestData, null, 2))
+  console.log('Отправляемые данные:', JSON.stringify(requestData, null, 2));
 
   try {
     const response = await fetch('https://api.codular.ru/api/v1/skips/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json',
-        // Добавьте токен авторизации, если требуется
+        'Accept': 'application/json',
         ...(authStore.accessToken && { Authorization: `Bearer ${authStore.accessToken}` }),
       },
       body: JSON.stringify(requestData),
-    })
+    });
 
+    console.log('sent')
     if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`)
+      const errorText = await response.text();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
-    const result = await response.json()
-    console.log('Полученный результат:', result)
+    const result = await response.json();
+    console.log('Полученный результат:', result);
 
-    if (resultEditorInstance) {
-      resultEditorInstance.setValue(JSON.stringify(result, null, 2))
+    // Если сервер вернул taskAlias, начинаем опрос статуса
+    if (result.taskAlias) {
+      console.log('taskAlias: ', result.taskAlias)
+      const taskAlias = result.taskAlias;
+      let attempts = 0;
+      const maxAttempts = 30; // Максимум 30 попыток (1 минута при интервале 2 сек)
+
+      const checkInterval = setInterval(async () => {
+        try {
+          attempts++;
+          const statusResponse = await fetch(`https://api.codular.ru/api/v1/task-status/${taskAlias}`, {
+            headers: {
+              'Authorization': `Bearer ${authStore.accessToken}`
+            }
+          });
+          console.log("statusResponse", statusResponse)
+
+          if (!statusResponse.ok) throw new Error('Status check failed');
+
+          const statusData = await statusResponse.json();
+          console.log("statusData", statusData)
+
+          if (statusResponse.status === 200) {
+            console.log("completed")
+            clearInterval(checkInterval);
+            resultEditorInstance.setValue(JSON.stringify(statusData, null, 2));
+
+            useStore.setTaskAlias(taskAlias)
+            await navigateTo(`task/${taskAlias}`);
+          } else if (statusData.status === 'failed' || attempts >= maxAttempts) {
+            clearInterval(checkInterval);
+            error.value = statusData.message || 'Task processing failed or timed out';
+          }
+        } catch (err) {
+          console.error('Polling error:', err);
+          if (attempts >= maxAttempts) {
+            clearInterval(checkInterval);
+            error.value = 'Failed to check task status';
+          }
+        }
+      }, 2000); // Проверяем каждые 2 секунды
+
+      // Очистка интервала при размонтировании компонента
+      onBeforeUnmount(() => {
+        clearInterval(checkInterval);
+      });
+    } else if (resultEditorInstance) {
+      // Если нет taskAlias, показываем результат напрямую
+      resultEditorInstance.setValue(JSON.stringify(result, null, 2));
     }
   } catch (err) {
-    console.error('Ошибка:', err)
-    error.value = `Ошибка генерации: ${err.message}`
+    console.error('Ошибка:', err);
+    error.value = `Ошибка генерации: ${err.message}`;
     if (resultEditorInstance) {
-      resultEditorInstance.setValue(`Error: ${err.message}`)
+      resultEditorInstance.setValue(`Error: ${err.message}`);
     }
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 // Навигационные функции (как в AppHeader, чтобы компонент был самодостаточным)
 const navigateTo = (path) => {
