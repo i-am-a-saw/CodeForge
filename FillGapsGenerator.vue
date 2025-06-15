@@ -1,25 +1,5 @@
 <template>
   <div class="main-container">
-    <div class="header-outer-wrapper">
-      <div class="flex-row">
-        <span class="code-genius" @click="navigateTo('/')">Codular</span>
-        <div class="menu">
-          <a class="contribute-problem" href="#" @click.prevent="navigateTo('/fill-gaps')">Fill in the gaps</a>
-          <a class="solve-problems" href="#" @click.prevent="navigateTo('/remove-noices')">Remove noices</a>
-          <a class="solve-problems" href="#" @click.prevent="navigateTo('/solve')">Solve problems</a>
-        </div>
-        <div class="log-in-start">
-          <template v-if="!authStore.isAuthenticated">
-            <a class="log-in" href="#" @click.prevent="navigateToLogin()">Log in</a>
-            <a class="get-started" href="#" @click.prevent="navigateToRegister()">Register</a>
-          </template>
-          <template v-else>
-            <UserProfile />
-          </template>
-        </div>
-      </div>
-    </div>
-
     <div class="content-wrapper">
       <div class="controls-row">
         <div class="control-group">
