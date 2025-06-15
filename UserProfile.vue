@@ -1,8 +1,11 @@
 <template>
-  <div class="user-profile-container" @mouseenter="openDropdown" @mouseleave="closeDropdownWithDelay">
-    <div class="profile-circle">
+  <div class="user-profile-container">
+    <div class="profile-circle" @click="toggleDropdown">
+      <template v-if="userEmailInitials">
+        <span class="profile-initial">{{ userEmailInitials }}</span>
+      </template>
       <svg
-        v-if="!profileImageUrl"
+        v-else
         class="profile-icon"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -10,71 +13,95 @@
       >
         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
       </svg>
-      <img v-else :src="profileImageUrl" alt="Profile" class="profile-image" />
     </div>
+
     <div v-if="isDropdownOpen" class="dropdown-menu">
-      <div class="dropdown-item" @click="handleLogout">Logout</div>
+      <div v-if="authStore.userEmail" class="user-email-display">
+        {{ authStore.userEmail }}
+      </div>
+      <div 
+        class="dropdown-item logout-item" 
+        @click="handleLogout" 
+        :class="{ 'logging-out': isLoggingOut }"
+        :disabled="isLoggingOut"
+      >
+        <svg v-if="!isLoggingOut" class="logout-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17 7L15.59 8.41L18.17 11H8V13H18.17L15.59 15.59L17 17L22 12L17 7ZM4 5H12V3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H12V19H4V5Z"/>
+        </svg>
+        <span v-if="!isLoggingOut">Logout</span>
+        <span v-else>Logging out...</span> </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-// import { useRouter } from 'vue-router' // useRouter больше не нужен для полного обновления страницы
-import { useAuthStore } from './src/stores/auth' // Путь к вашему Pinia store
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useAuthStore } from './src/stores/auth';
 
-const authStore = useAuthStore()
-// const router = useRouter() // Убираем, так как не будем использовать router.push
-const isDropdownOpen = ref(false)
-let logoutTimeout = null; // Для задержки скрытия меню
+const authStore = useAuthStore();
+const isDropdownOpen = ref(false);
+const isLoggingOut = ref(false); // <-- Новое состояние для отслеживания загрузки
 
-// Пока заглушка для URL изображения профиля
-const profileImageUrl = ref(null);
+const userEmailInitials = computed(() => {
+  if (authStore.userEmail) {
+    return authStore.userEmail.substring(0, 2).toUpperCase();
+  }
+  return null;
+});
 
-const openDropdown = () => {
-  clearTimeout(logoutTimeout); // Отменяем возможное скрытие
-  isDropdownOpen.value = true;
-}
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
 
-const closeDropdownWithDelay = () => {
-  // Задержка перед скрытием, чтобы пользователь успел переместить курсор
-  logoutTimeout = setTimeout(() => {
+const handleClickOutside = (event) => {
+  const profileContainer = document.querySelector('.user-profile-container');
+  if (profileContainer && !profileContainer.contains(event.target)) {
     isDropdownOpen.value = false;
-  }, 200); // 200 миллисекунд задержки
-}
+  }
+};
 
 const handleLogout = async () => {
-  clearTimeout(logoutTimeout); // Отменяем скрытие, если оно было запланировано
+  isLoggingOut.value = true; // <-- Устанавливаем состояние загрузки в true немедленно
   try {
-    await authStore.logout(); // Вызываем функцию logout из Pinia store
-    // Перенаправляем на корневую страницу и полностью обновляем ее
-    window.location.href = '/';
-    // window.location.reload(); // Это вызовет перезагрузку, но установка href уже вызовет ее
+    await authStore.logout();
+    // На самом деле, эта строка будет выполнена только если logout успешен на бэкенде
+    // и если не было полной перезагрузки страницы внутри authStore.logout()
+    // Для нашего случая с window.location.href = '/', она просто начнет перезагрузку
+    window.location.href = '/'; 
   } catch (error) {
     console.error('Logout failed:', error);
-    // Даже если произошла ошибка на бэкенде, мы все равно разлогиниваем пользователя на фронте
-    window.location.href = '/';
-    // window.location.reload();
+    // В случае ошибки, можно отменить состояние загрузки или также перезагрузить
+    isLoggingOut.value = false; // Отменяем загрузку, если произошла ошибка
+    window.location.href = '/'; // В любом случае, перезагружаем страницу
   }
-}
+};
+
+onMounted(() => {
+  if (authStore.isAuthenticated && !authStore.userEmail) {
+    authStore.fetchUserEmail();
+  }
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <style scoped>
-/* Стили остаются такими же, как и в предыдущем ответе */
-
 .user-profile-container {
   position: relative;
-  width: 60px; /* Ширина круга */
-  height: 60px; /* Высота круга */
-  border-radius: 50%; /* Делаем круглым */
-  background-color: #ffffff; /* Белый фон для аватарки */
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  margin-left: auto; /* Для выравнивания справа внутри .log-in-start */
-  z-index: 10; /* Убедимся, что он выше других элементов */
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1); /* Легкая обводка, если нужна */
+  margin-left: auto;
+  z-index: 10;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 .profile-circle {
@@ -83,53 +110,106 @@ const handleLogout = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .profile-initial {
-  /* Если решите использовать первую букву */
-  color: #4f46e5; /* Цвет текста */
+  color: #4f46e5;
   font-size: 24px;
   font-weight: bold;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .profile-icon {
-  /* Стиль для иконки человечка */
-  width: 40px; /* Размер иконки */
+  width: 40px;
   height: 40px;
-  color: #a0a0a0; /* Серый цвет иконки */
-}
-
-.profile-image {
-  /* Стили для реального изображения профиля */
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover; /* Чтобы изображение заполняло круг */
+  color: #a0a0a0;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .dropdown-menu {
   position: absolute;
-  top: 70px; /* Отступ от круга */
-  right: 0;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: #fff;
   border: 1px solid #ddd;
-  border-radius: 8px; /* Скругленные края */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Увеличил тень */
-  min-width: 150px; /* Увеличил минимальную ширину */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
   z-index: 100;
   overflow: hidden;
+  padding: 15px;
 }
 
 .dropdown-item {
-  padding: 12px 20px; /* Увеличил отступы */
+  padding: 15px 20px;
   cursor: pointer;
-  font-size: 18px; /* Увеличил шрифт */
+  font-size: 16px;
   color: #333;
   transition: background-color 0.2s;
-  white-space: nowrap; /* Чтобы текст не переносился */
+  white-space: nowrap;
+  border-radius: 8px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .dropdown-item:hover {
-  background-color: #f0f0f0;
+  background-color: #f7f7f7;
+}
+
+/* Новый стиль для состояния загрузки кнопки Logout */
+.dropdown-item.logging-out {
+  cursor: not-allowed; /* Курсор "запрещено" */
+  opacity: 0.7; /* Сделаем кнопку немного прозрачной */
+  background-color: #f0f0f0; /* Более нейтральный фон */
+  color: #888; /* Более тусклый текст */
+  pointer-events: none; /* Полностью отключаем события мыши */
+}
+
+.user-email-display {
+  font-size: 18px;
+  font-weight: 500;
+  color: #202020;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 10px;
+  white-space: normal;
+  word-wrap: break-word;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.logout-item {
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  border-radius: 8px;
+}
+
+.logout-item:hover {
+  background-color: #fee2e2;
+}
+
+.logout-icon {
+  width: 24px;
+  height: 24px;
+  fill: #ef4444;
 }
 </style>
