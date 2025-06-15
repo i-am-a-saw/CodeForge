@@ -2,15 +2,16 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '../../HomePage.vue'
 import Test from '../../test.vue'
 import LoginForm from '../../LoginForm.vue'
+import FillGapsGenerator from '../../FillGapsGenerator.vue' // Импортируем новый компонент
 import { useAuthStore } from '../stores/auth'
 
 const routes = [
   { path: '/', component: HomePage },
   { path: '/login', component: LoginForm },
   { path: '/start', component: HomePage },
-  { path: '/fill-gaps', component: Test },
-  { path: '/remove-noices', component: Test },
-  { path: '/solve', component: Test },
+  { path: '/fill-gaps', component: FillGapsGenerator, meta: { requiresAuth: true } }, 
+  { path: '/remove-noices', component: Test, meta: { requiresAuth: true } }, 
+  { path: '/solve', component: Test, meta: { requiresAuth: true } }, 
 ]
 
 const router = createRouter({

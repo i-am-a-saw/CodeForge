@@ -63,7 +63,7 @@ const password = ref('')
 const confirmPassword = ref('')
 const error = ref('')
 const isLogin = ref(true)
-const isLoading = ref(false) // Новое состояние для индикатора загрузки
+const isLoading = ref(false)
 
 const toggleForm = () => {
   isLogin.value = !isLogin.value
@@ -94,53 +94,61 @@ watch(
 )
 
 const handleSubmit = async () => {
-  error.value = '' // Очищаем предыдущие ошибки
-  isLoading.value = true // Начинаем загрузку
+  error.value = ''
+  isLoading.value = true
 
   try {
     if (isLogin.value) {
       await authStore.login({ email: email.value, password: password.value })
-      window.location.href = '/'
+      // Если логин успешен, перенаправляем.
+      // Важно: если перенаправление происходит через window.location.href,
+      // то дальнейший код в try не выполнится.
+      window.location.href = '/' // Перенаправление на главную после логина
     } else {
       if (password.value !== confirmPassword.value) {
         error.value = 'Пароли не совпадают'
         return
       }
       await authStore.register({ email: email.value, password: password.value })
-      window.location.href = '/'
+      window.location.href = '/' // Перенаправление на главную после регистрации
     }
   } catch (err) {
     console.error('Ошибка аутентификации:', err)
     if (err.response) {
-      // Ошибка от сервера
       const statusCode = err.response.status
       const serverMessage = err.response.data?.message || 'Неизвестная ошибка сервера.'
 
       if (statusCode === 400) {
+        // Ошибка валидации данных (например, неверный формат email, короткий пароль)
         error.value = 'Ошибка данных: Проверьте правильность email и убедитесь, что пароль не менее 8 символов.'
-      } else if (statusCode === 500) {
+      } else if (statusCode === 401 && isLogin.value) {
+        // 401 для логина: неверные учетные данные
+        error.value = 'Неверный email или пароль.'
+      } else if (statusCode === 401 && !isLogin.value) {
+        // 401 для регистрации: возможно, уже существует пользователь, или другая ошибка авторизации
+        error.value = 'Ошибка регистрации: Возможно, пользователь с таким email уже существует или другая проблема с аутентификацией.'
+      }
+      else if (statusCode === 500) {
         error.value = 'Сервер временно недоступен. Пожалуйста, попробуйте позже.'
       } else {
         error.value = `Неизвестная ошибка (${statusCode}): ${serverMessage}. Пожалуйста, попробуйте позже или сообщите нам.`
       }
     } else if (err.request) {
-      // Запрос был сделан, но ответа не получено (например, нет соединения)
       error.value = 'Нет соединения с сервером. Проверьте ваше интернет-соединение.'
     } else {
-      // Что-то пошло не так при настройке запроса
       error.value = 'Произошла неизвестная ошибка. Пожалуйста, попробуйте позже или сообщите нам.'
     }
   } finally {
-    isLoading.value = false // Завершаем загрузку
+    isLoading.value = false
   }
 }
 </script>
 
 <style scoped>
-/* Стили остаются такими же, как и в предыдущем ответе */
+/* Стили остаются без изменений, как в предыдущем ответе */
 
 :root {
-  --default-font-family: Friska, -apple-system, BlinkMacMacFont, 'Segoe UI', Roboto,
+  --default-font-family: Friska, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     Ubuntu, 'Helvetica Neue', Helvetica, Helvetica, Arial, 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft Yahei UI', 'Microsoft Yahei',
     'Source Han Sans CN', sans-serif;
@@ -234,32 +242,31 @@ const handleSubmit = async () => {
   font-size: 20px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease, opacity 0.3s ease; /* Добавляем opacity */
+  transition: background-color 0.3s ease, opacity 0.3s ease;
   margin-top: 10px;
-  display: flex; /* Для выравнивания спиннера */
-  justify-content: center; /* Центрируем содержимое */
-  align-items: center; /* Центрируем содержимое */
-  gap: 10px; /* Отступ между спиннером и текстом */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
-.submit-button:hover:not(:disabled) { /* Исключаем ховер при disabled */
+.submit-button:hover:not(:disabled) {
   background-color: #3e38c2;
 }
 
 .submit-button-loading {
-  opacity: 0.7; /* Делаем кнопку бледнее */
+  opacity: 0.7;
   cursor: not-allowed;
-  background-color: #4f46e5; /* Сохраняем цвет, но меняем прозрачность */
+  background-color: #4f46e5;
 }
 
-/* Стили для крутящегося индикатора (спиннера) */
 .spinner {
-  border: 4px solid rgba(255, 255, 255, 0.3); /* Светлый цвет */
-  border-top: 4px solid #ffffff; /* Белый цвет для части, которая вращается */
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #ffffff;
   border-radius: 50%;
   width: 20px;
   height: 20px;
-  animation: spin 1s linear infinite; /* Анимация вращения */
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {

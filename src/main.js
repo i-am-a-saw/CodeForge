@@ -12,7 +12,4 @@ pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 app.use(router)
 
-const authStore = useAuthStore()
-authStore.initialize() // Инициализация состояния авторизации
-
 app.mount('#app')

@@ -51,10 +51,6 @@ export const useAuthStore = defineStore('auth', {
             this.user = null
             this.isAuthenticated = false // Устанавливаем в false при сбросе
         },
-
-        initialize() {
-            this.isAuthenticated = !!this.accessToken
-        }
     },
 
     persist: true
